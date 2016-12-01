@@ -1,11 +1,13 @@
+from datetime import datetime
+
 import arcade
 import arcade.color
-from datetime import datetime
 
 screen_w = 800
 screen_h = 600
 
 mov_speed = 3
+
 
 def get_bomb_textures():
 	file = "images/14bomberman.PNG"
@@ -14,16 +16,16 @@ def get_bomb_textures():
 	       [18, 255, 16, 17],
 	       [33, 255, 16, 17]]
 	return arcade.load_textures(file, loc, False)
+# Bomb Background 192,192,192 Make transparent TODO
 
 bomb_sprite = get_bomb_textures()
-
 
 class MyApp(arcade.Window):
 	def __init__(self, w, h):
 		super().__init__(w, h)
 		self.allsprites = arcade.SpriteList()
 
-		self.player = SpritePlayer(scale=10, playernumber=1,color=arcade.color.PINK)
+		self.player = SpritePlayer(scale=10, playernumber=1, color=arcade.color.PINK)
 
 		self.allsprites.append(self.player)
 
@@ -39,36 +41,22 @@ class MyApp(arcade.Window):
 		"""
 		Called whenever a key is pressed.
 		"""
-		if key == arcade.key.UP:
-			self.player.change_y += mov_speed
-		elif key == arcade.key.DOWN:
-			self.player.change_y -= mov_speed
-		elif key == arcade.key.LEFT:
-			self.player.change_x -= mov_speed
-		elif key == arcade.key.RIGHT:
-			self.player.change_x += mov_speed
-		elif key == arcade.key.SPACE:
-			self.player.putBomb()
+		self.player.getKeyDownEvent(key)
 
 	def on_key_release(self, key, modifiers):
 		"""
 		Called whenever a key is released
 		"""
-		if key == arcade.key.UP:
-			self.player.change_y -= mov_speed
-		elif key == arcade.key.DOWN:
-			self.player.change_y += mov_speed
-		elif key == arcade.key.LEFT:
-			self.player.change_x += mov_speed
-		elif key == arcade.key.RIGHT:
-			self.player.change_x -= mov_speed
+		self.player.getKeyUpEvent(key)
+
 
 	def placeBomb(self):
-		bomb = arcade.AnimatedTimeSprite(2,0,0,self.player.position[0],self.player.position[1])
-
+		bomb = arcade.AnimatedTimeSprite(2, 0, 0, self.player.position[0], self.player.position[1])
 
 	def animate(self, dt):
+		self.player.bomb_list.update()
 		self.allsprites.update()
+		self.player.bomb_list.update_animation()
 		self.allsprites.update_animation()
 
 
@@ -76,12 +64,13 @@ def main():
 	MyApp(screen_w, screen_h)
 	arcade.run()
 
+
 class SpritePlayer(arcade.AnimatedWalkingSprite):
-	def __init__(self,scale,playernumber,color):
+	def __init__(self, scale, playernumber, color):
 		super().__init__(scale=scale)
 		self.PlayerNo = playernumber
 		self.color = color
-		self.bomb_list=arcade.SpriteList()
+		self.bomb_list = arcade.SpriteList()
 
 		file = "images/SBM2-Bomberman.gif"
 
@@ -120,22 +109,47 @@ class SpritePlayer(arcade.AnimatedWalkingSprite):
 		self.center_y = screen_h / 2
 		self.center_x = screen_w / 2
 
-
-
-	def putBomb(self):
+	def putbomb(self):
 		bomb = SpriteBomb(self)
 		self.bomb_list.append(bomb)
 
+	def getKeyDownEvent(self,key):
+		if key == arcade.key.UP:
+			self.change_y += mov_speed
+		elif key == arcade.key.DOWN:
+			self.change_y -= mov_speed
+		elif key == arcade.key.LEFT:
+			self.change_x -= mov_speed
+		elif key == arcade.key.RIGHT:
+			self.change_x += mov_speed
+		elif key == arcade.key.SPACE:
+			self.putbomb()
+
+	def getKeyUpEvent(self,key):
+		if key == arcade.key.UP:
+			self.change_y -= mov_speed
+		elif key == arcade.key.DOWN:
+			self.change_y += mov_speed
+		elif key == arcade.key.LEFT:
+			self.change_x += mov_speed
+		elif key == arcade.key.RIGHT:
+			self.change_x -= mov_speed
+
+
 class SpriteBomb(arcade.AnimatedTimeSprite):
-	def __init__(self,player):
+	def __init__(self, player):
 		super().__init__()
 		self.player = player
-		self.timeplaced=datetime.now()
+		self.timeplaced = datetime.now()
 
-		self.textures=bomb_sprite
-		self.center_x=player.center_x
-		self.center_y=player.center_y
+		self.textures = bomb_sprite
+		self.transparent=False
+		self.set_position(player.center_x, player.center_y)
 
+	def update(self):
+		super(SpriteBomb, self).update()
+		if datetime.now().second-self.timeplaced.second>=3:
+			self.kill()
 
 
 if __name__ == '__main__':
