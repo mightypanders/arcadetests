@@ -16,24 +16,23 @@ def get_bomb_textures():
 	       [18, 255, 16, 17],
 	       [33, 255, 16, 17]]
 	return arcade.load_textures(file, loc, False)
-# Bomb Background 192,192,192 Make transparent TODO
+
+
+#  TODO Bomb Background 192,192,192 Make transparent
 
 bomb_sprite = get_bomb_textures()
+
 
 class MyApp(arcade.Window):
 	def __init__(self, w, h):
 		super().__init__(w, h)
 		self.allsprites = arcade.SpriteList()
-
 		self.player = SpritePlayer(scale=10, playernumber=1, color=arcade.color.PINK)
-
 		self.allsprites.append(self.player)
-
 		arcade.set_background_color(arcade.color.AMAZON)
 
 	def on_draw(self):
 		arcade.start_render()
-
 		self.allsprites.draw()
 		self.player.bomb_list.draw()
 
@@ -49,7 +48,6 @@ class MyApp(arcade.Window):
 		"""
 		self.player.getKeyUpEvent(key)
 
-
 	def placeBomb(self):
 		bomb = arcade.AnimatedTimeSprite(2, 0, 0, self.player.position[0], self.player.position[1])
 
@@ -58,11 +56,6 @@ class MyApp(arcade.Window):
 		self.allsprites.update()
 		self.player.bomb_list.update_animation()
 		self.allsprites.update_animation()
-
-
-def main():
-	MyApp(screen_w, screen_h)
-	arcade.run()
 
 
 class SpritePlayer(arcade.AnimatedWalkingSprite):
@@ -113,7 +106,7 @@ class SpritePlayer(arcade.AnimatedWalkingSprite):
 		bomb = SpriteBomb(self)
 		self.bomb_list.append(bomb)
 
-	def getKeyDownEvent(self,key):
+	def getKeyDownEvent(self, key):
 		if key == arcade.key.UP:
 			self.change_y += mov_speed
 		elif key == arcade.key.DOWN:
@@ -125,7 +118,7 @@ class SpritePlayer(arcade.AnimatedWalkingSprite):
 		elif key == arcade.key.SPACE:
 			self.putbomb()
 
-	def getKeyUpEvent(self,key):
+	def getKeyUpEvent(self, key):
 		if key == arcade.key.UP:
 			self.change_y -= mov_speed
 		elif key == arcade.key.DOWN:
@@ -141,15 +134,19 @@ class SpriteBomb(arcade.AnimatedTimeSprite):
 		super().__init__()
 		self.player = player
 		self.timeplaced = datetime.now()
-
 		self.textures = bomb_sprite
-		self.transparent=False
+		self.transparent = False
 		self.set_position(player.center_x, player.center_y)
 
 	def update(self):
 		super(SpriteBomb, self).update()
-		if datetime.now().second-self.timeplaced.second>=3:
+		if datetime.now().second - self.timeplaced.second >= 3:
 			self.kill()
+
+
+def main():
+	MyApp(screen_w, screen_h)
+	arcade.run()
 
 
 if __name__ == '__main__':
