@@ -33,8 +33,8 @@ class MyApp(arcade.Window):
 
 	def on_draw(self):
 		arcade.start_render()
-		self.allsprites.draw()
 		self.player.bomb_list.draw()
+		self.allsprites.draw()
 
 	def on_key_press(self, key, modifiers):
 		"""
@@ -49,7 +49,8 @@ class MyApp(arcade.Window):
 		self.player.getKeyUpEvent(key)
 
 	def placeBomb(self):
-		bomb = arcade.AnimatedTimeSprite(2, 0, 0, self.player.position[0], self.player.position[1])
+		bomb = arcade.AnimatedTimeSprite(1, 0, 0, self.player.position[0],
+		                                   self.player.position[1])
 
 	def animate(self, dt):
 		self.player.bomb_list.update()
@@ -100,6 +101,7 @@ class SpritePlayer(arcade.AnimatedWalkingSprite):
 			self.change_x += mov_speed
 		elif key == self.walkrightkey:
 			self.change_x -= mov_speed
+		self.start_walk = True
 
 	def assingTextures(self):
 		file = "images/SBM2-Bomberman.gif"
@@ -127,7 +129,7 @@ class SpritePlayer(arcade.AnimatedWalkingSprite):
 		                [18, 2, 16, 28],
 		                [1, 2, 16, 28],
 		                [35, 2, 16, 28]]
-		self.walk_up_walk_textures = arcade.load_textures(file, walk_sprites, False)
+		self.walk_up_textures = arcade.load_textures(file, walk_sprites, False)
 
 		walk_sprites = [[106, 2, 16, 28],
 		                [123, 2, 16, 28],
@@ -138,7 +140,7 @@ class SpritePlayer(arcade.AnimatedWalkingSprite):
 
 class SpriteBomb(arcade.AnimatedTimeSprite):
 	def __init__(self, player):
-		super().__init__(scale=4)
+		super().__init__(scale=2)
 		self.player = player
 		self.timeplaced = datetime.now()
 		self.textures = bomb_sprite
